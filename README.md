@@ -34,12 +34,12 @@ Sistema de gestión de novedades internas para el Honorable Concejo Deliberante.
 1. Clonar el repositorio
 2. Construir y levantar contenedores:
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 3. Ejecutar migraciones y seeders:
    ```bash
-   docker-compose exec app php artisan migrate
-   docker-compose exec app php artisan db:seed
+   docker compose exec app php artisan migrate
+   docker compose exec app php artisan db:seed
    ```
 
 ### Producción con Docker
@@ -47,7 +47,7 @@ Sistema de gestión de novedades internas para el Honorable Concejo Deliberante.
 1. Clonar el repositorio
 2. Levantar contenedores de producción:
    ```bash
-   docker-compose -f docker-compose.prod.yml up --build
+   docker compose -f docker-compose.prod.yml up --build
    ```
 
 ## Tecnologías
