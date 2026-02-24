@@ -73,7 +73,7 @@
                                         <a href="{{ route('novedades.show', $novedad) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('novedades.edit', $novedad) }}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route('novedades.edit', $novedad->id) }}" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('novedades.destroy', $novedad) }}" method="POST" style="display: inline;" class="delete-form">

@@ -77,14 +77,17 @@ class NovedadController extends Controller
         return redirect()->route('novedades.index')->with('success', 'Novedad creada exitosamente.');
     }
 
-    public function show(Novedad $novedad)
+    public function show($id)
     {
+        $novedad = Novedad::findOrFail($id);
         $novedad->load(['area', 'responsable', 'user', 'imagenes']);
         return view('novedades.show', compact('novedad'));
     }
 
-    public function edit(Novedad $novedad)
+    public function edit($id)
     {
+        $novedad = Novedad::findOrFail($id);
+        
         // Load relationships
         $novedad->load(['area', 'responsable', 'imagenes']);
         
@@ -106,8 +109,10 @@ class NovedadController extends Controller
         return view('novedades.edit', compact('novedad', 'areas', 'responsables'));
     }
 
-    public function update(Request $request, Novedad $novedad)
+    public function update(Request $request, $id)
     {
+        $novedad = Novedad::findOrFail($id);
+        
         $request->validate([
             'descripcion' => 'required|string',
             'tipo' => 'required|in:incidencia,mantenimiento,evento,otro',
@@ -148,8 +153,9 @@ class NovedadController extends Controller
         return redirect()->route('novedades.index')->with('success', 'Novedad actualizada exitosamente.');
     }
 
-    public function destroy(Novedad $novedad)
+    public function destroy($id)
     {
+        $novedad = Novedad::findOrFail($id);
         $novedad->delete();
         
         // Check if it's an AJAX request

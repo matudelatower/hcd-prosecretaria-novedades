@@ -114,7 +114,7 @@
                 @endif
             </div>
             <div class="card-footer">
-                <a href="{{ route('novedades.edit', $novedad) }}" class="btn btn-warning">
+                <a href="{{ route('novedades.edit', $novedad->id) }}" class="btn btn-warning">
                     <i class="fas fa-edit mr-2"></i>Editar
                 </a>
                 <a href="{{ route('novedades.index') }}" class="btn btn-secondary">
