@@ -57,3 +57,8 @@ Sistema de gestión de novedades internas para el Honorable Concejo Deliberante.
 - MySQL
 - Vue.js
 - Tailwind CSS
+
+
+## Deploy
+
+Para deployar en producción, seguir los pasos en `DEPLOY.md`.

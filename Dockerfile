@@ -44,5 +44,11 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Exponer puerto 84
 EXPOSE 84
 
+# Copiar entrypoint que arregla permisos al arrancar
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 # Comando de inicio
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
