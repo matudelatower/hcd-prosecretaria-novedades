@@ -76,7 +76,7 @@
                                         <a href="{{ route('novedades.edit', $novedad) }}" class="btn btn-warning btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('novedades.destroy', $novedad) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Está seguro que desea eliminar esta novedad?')">
+                                        <form action="{{ route('novedades.destroy', $novedad) }}" method="POST" style="display: inline;" class="delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">
@@ -100,4 +100,119 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle delete form submissions
+    const deleteForms = document.querySelectorAll('.delete-form');
+    
+    deleteForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (confirm('¿Está seguro que desea eliminar esta novedad?')) {
+                const formData = new FormData(this);
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row from the table
+                        const row = this.closest('tr');
+                        row.style.transition = 'opacity 0.3s';
+                        row.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            row.remove();
+                            
+                            // Check if there are no more rows
+                            const tbody = document.querySelector('tbody');
+                            if (tbody.children.length === 0) {
+                                tbody.innerHTML = `
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted">No hay novedades registradas</p>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                        }, 300);
+                        
+                        // Show success message
+                        showAlert(data.message || 'Novedad eliminada exitosamente.', 'success');
+                    } else {
+                        throw new Error(data.message || 'Error al eliminar la novedad');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    // If there's an error, fallback to normal form submission
+                    if (error.message.includes('Error al eliminar')) {
+                        showAlert('Error al eliminar la novedad. Recargando la página...', 'error');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert('Error de conexión. Recargando la página...', 'error');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                    
+                    // Restore button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                });
+            }
+        });
+    });
+    
+    // Function to show alert messages
+    function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlert = document.querySelector('.alert-message');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        // Create new alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-message`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
 @endsection

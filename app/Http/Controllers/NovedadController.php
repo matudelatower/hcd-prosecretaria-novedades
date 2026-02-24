@@ -79,12 +79,15 @@ class NovedadController extends Controller
 
     public function show(Novedad $novedad)
     {
-        $novedad->load(['area', 'responsable']);
+        $novedad->load(['area', 'responsable', 'user', 'imagenes']);
         return view('novedades.show', compact('novedad'));
     }
 
     public function edit(Novedad $novedad)
     {
+        // Load relationships
+        $novedad->load(['area', 'responsable', 'imagenes']);
+        
         $areas = Area::orderBy('nombre')->pluck('nombre', 'id');
         
         // Solo administradores pueden seleccionar responsables
@@ -116,13 +119,47 @@ class NovedadController extends Controller
             'observaciones' => 'nullable|string'
         ]);
 
-        $novedad->update($request->all());
+        // Determinar el responsable según el rol del usuario
+        $responsableId = null;
+        if (auth()->user()->isAdmin()) {
+            // Admin puede asignar cualquier responsable
+            $responsableId = $request->responsable_id;
+        } else {
+            // Mantener el responsable actual o asignar a sí mismo si no tiene
+            $responsable = auth()->user()->responsable;
+            if ($responsable) {
+                $responsableId = $responsable->id;
+            } else {
+                $responsableId = $novedad->responsable_id;
+            }
+        }
+
+        $novedad->update([
+            'descripcion' => $request->descripcion,
+            'tipo' => $request->tipo,
+            'fecha' => $request->fecha,
+            'hora' => $request->hora,
+            'area_id' => $request->area_id,
+            'responsable_id' => $responsableId,
+            'estado' => $request->estado,
+            'observaciones' => $request->observaciones
+        ]);
+        
         return redirect()->route('novedades.index')->with('success', 'Novedad actualizada exitosamente.');
     }
 
     public function destroy(Novedad $novedad)
     {
         $novedad->delete();
+        
+        // Check if it's an AJAX request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Novedad eliminada exitosamente.'
+            ]);
+        }
+        
         return redirect()->route('novedades.index')->with('success', 'Novedad eliminada exitosamente.');
     }
 }
